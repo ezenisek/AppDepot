@@ -1,0 +1,207 @@
+<?php
+/*
+    **THIS NOTICE MUST APPEAR ON ALL PAGES AND VERSIONS OF AppDepot**
+       
+    Application Depot.
+    Copyright 2009 NMSU Research IT, New Mexico State University
+    Originally developed by Ed Zenisek, Stephen Carr, and Abel Sanchez.
+    
+    AppDepot is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    AppDepot is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    */
+require_once('../includes/startup.php');
+$userlevel = sessionVerify();
+$theme = getNVP('theme');
+if($userlevel)
+	{
+		dieLog("Unauthorized access attempt to Admin Page");
+	}
+if(!isset($_GET['category_id']))
+	{
+		dieLog("Edit category called with no category id");	
+	}
+$catid = $_GET['category_id'];
+
+// Get category information
+$query = "SELECT * FROM categories WHERE category_id = '$catid'";
+$result = mysql_query($query) or dieLog("Could not get category information from database (catedit) because ".mysql_error());
+if(!mysql_num_rows($result))
+	{
+		dieLog("Requested category ($catid) does not exist in the database.");  
+	}
+$catrow = mysql_fetch_assoc($result);
+
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../themes/<?php echo $theme; ?>/style.css" />
+	<title>App Depot User Edit Admin Page</title>
+	<script type="text/javascript" src="../javascript/motionpack.js"></script>
+	<script type="text/javascript">
+	var sub;
+
+	function isEmpty(mytext) {
+		var re = /^\s{1,}$/g; //match any white space including space, tab, form-feed, etc.
+			if ((mytext.value.length==0) || (mytext.value=='') || ((mytext.value.search(re)) > -1)) {
+			return true;
+			}
+			else {
+			return false;
+			}
+		}
+	
+	function isNumeric(strString)
+   		{
+   			var strValidChars = "0123456789.-";
+   			var strChar;
+   			var blnResult = true;
+			if (strString.length == 0) return false;
+			//  test strString consists of valid characters listed above
+   			for (i = 0; i < strString.length && blnResult == true; i++)
+      		{
+      			strChar = strString.charAt(i);
+      			if (strValidChars.indexOf(strChar) == -1)
+         		{
+         		blnResult = false;
+         		}
+      		}
+   			return blnResult;
+   		}	
+	
+	function doEdit()
+		{
+		if(!checkForm()) return false;
+	  	if(window.XMLHttpRequest) {
+			sub = new XMLHttpRequest();
+		} else if(window.ActiveXObject) {
+			sub = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		document.getElementById('addloader').style.display = '';
+		document.getElementById('adderror').style.display = 'none';
+		
+		var catid = '<?php echo $catid; ?>';
+		var name = document.editcat.catname.value;
+		var desc = document.editcat.catdescription.value;
+		var parent = document.editcat.catparent.value;
+		var sortorder = document.editcat.sortorder.value;
+		var url = 'catupdate.php';
+		var params = "do=edit&category_id="+catid+"&name="+name+"&description="+desc+"&parent_id="+parent+"&sortorder="+sortorder;
+				
+		// Send information to lookup script via post
+		sub.open("POST",url,true);
+		
+		// Set the headers
+		sub.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		sub.setRequestHeader("Content-length", params.length);
+		sub.setRequestHeader("Connection", "close");
+		
+		sub.onreadystatechange = callbackEdit;
+		sub.send(params);
+		return false;
+	  }
+	  
+	function callbackEdit()
+	  {
+	  	if(sub.readyState == 4)
+	  		{
+	  			var response = sub.responseXML;
+	  			var resp = response.getElementsByTagName("response");
+	  			var result = resp[0].getElementsByTagName("result")[0].childNodes[0].nodeValue;
+	  			if(result == 'error')
+	  				{
+	  					var error = resp[0].getElementsByTagName("content")[0].childNodes[0].nodeValue;
+	  					document.getElementById('addloader').style.display = 'none';
+	  					document.getElementById('adderror').style.display = '';
+	  					document.getElementById('adderror').className = 'error';
+	  					document.getElementById('adderror').innerHTML = 'Error: '+error;
+	  				}
+	  			else
+	  				{
+	  					document.getElementById('addloader').style.display = 'none';
+	  					document.getElementById('adderror').style.display = '';
+	  					document.getElementById('adderror').className = 'success';
+	  					document.getElementById('adderror').innerHTML = 'Category Updated';
+	  				}
+	  		}
+	  }
+	  
+	  function checkForm() 
+	  {
+	    if(isEmpty(document.editcat.catname))
+	      {
+	      alert("You must specify a Category Name");
+	      return false;
+	      }
+	    if(isEmpty(document.editcat.sortorder))
+	      {
+	      alert("You must choose a Sort Order");
+	      return false;
+	      }
+	    if(!isNumeric(document.editcat.sortorder.value))
+	      {
+	      alert("Sort Order must be a numeric value");
+	      return false;
+	      }
+	    return true;
+  	 }
+</script>
+</head>
+<body>
+	<script type="text/javascript" src="../javascript/wz_tooltip.js"></script> 
+	<br />
+	<div class="listheader" id="catheader">Edit Category</div>
+	<div class="dropslider">
+	<form name="editcat" method="post" action="catedit.php">
+	<table>
+		<tr>
+			<td>New Category Name:</td>
+			<td colspan="2"><input type="text" name="catname" size="40" value="<?php echo $catrow['name']; ?>"/></td>
+		</tr>
+		<tr>
+			<td>Category Description:</td>
+			<td colspan="2"><textarea name="catdescription" rows="3" cols="40"><?php echo $catrow['description']; ?></textarea></td>
+		</tr>
+		<tr>
+			<td>Category Parent</td>
+			<td><select name="catparent">
+				<option value="0">Top Level</option>
+				<?php 
+					$query = "SELECT category_id, name FROM categories WHERE category_id != '".$catrow['category_id']."' ORDER BY parent_id ASC, sortorder ASC, name ASC";
+					$result = mysql_query($query) or dieLog("Could not get category list from database because ".mysql_error());
+					while($row = mysql_fetch_row($result))
+						{
+							if($catrow['parent_id'] == $row[0])
+								echo '<option value="'.$row[0].'" selected>'.$row[1].'</option>';
+							else
+								echo '<option value="'.$row[0].'">'.$row[1].'</option>';	
+						}
+				?>
+				</select></td>
+				<td rowspan="3"><span id="addloader" style="width:400px;display:none;"><img src="../themes/<?php echo $theme; ?>/images/ajax-loader.gif" height="40px" /></span>
+  				<span id="adderror" style="width:350px;display:none;"></span></td>
+		</tr>
+		<tr>
+			<td>Sort Order:</td>
+			<td><input type="text" name="sortorder" size="4" value="<?php echo $catrow['sortorder']; ?>" /></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td><input type="button" name="editcat" value="Edit Category" onClick="doEdit()" /></td>
+		</tr>
+	</table>	
+	</form>
+	</div>
+</body>
+</html>

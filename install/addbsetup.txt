@@ -1,0 +1,123 @@
+DROP TABLE IF EXISTS app_use;
+CREATE TABLE app_use (
+app_id int(10) unsigned NOT NULL default '0',
+user_id int(10) unsigned NOT NULL default '0',
+timestamp datetime NOT NULL default '0000-00-00 00:00:00',
+usage_id  int(10) unsigned NOT NULL auto_increment,
+PRIMARY KEY  ( usage_id )) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS applications;
+CREATE TABLE applications (
+app_id int(10) unsigned NOT NULL auto_increment,
+category_id int(10) unsigned NOT NULL default '0',
+app_name varchar(100) NOT NULL default '',
+url varchar(255) NOT NULL default '',
+description text,
+author varchar(100) default NULL,
+date_installed datetime NOT NULL default '0000-00-00 00:00:00',
+contact_email varchar(100) default NULL,
+contact_name varchar(100) default NULL,
+public int(10) unsigned default '0',
+enabled int(10) unsigned NOT NULL default '1',
+PRIMARY KEY ( app_id )) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS categories;
+CREATE TABLE categories (
+category_id int(10) unsigned NOT NULL auto_increment,
+parent_id int(10) unsigned NOT NULL default '0',
+name varchar(100) NOT NULL default '',
+description varchar(255) NOT NULL default '',
+sortorder int(10) unsigned NOT NULL default '0',
+PRIMARY KEY ( category_id )) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS ldapsources;
+CREATE TABLE ldapsources (
+ldap_id int(10) unsigned NOT NULL auto_increment,
+host varchar(100) NOT NULL default '',
+port int(10) unsigned NOT NULL default '0',
+searchuser varchar(100) NOT NULL default '',
+password varchar(100) NOT NULL default '',
+ldap_name_field varchar(100) NOT NULL default '',
+ldap_email_field varchar(100) NOT NULL default '',
+ldap_secure int(10) unsigned NOT NULL default '0',
+base_dn varchar(100) NOT NULL default '',
+ldap_fullname_field varchar(100) NOT NULL default '',
+sourcename varchar(100) default NULL,
+PRIMARY KEY ( ldap_id )) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS logs;
+CREATE TABLE logs (
+log_id int(10) unsigned NOT NULL auto_increment,
+timestamp datetime NOT NULL default '0000-00-00 00:00:00',
+severity int(10) unsigned NOT NULL default '0',
+application varchar(100) default NULL,
+entry text NOT NULL,
+PRIMARY KEY ( log_id )) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS nvp;
+CREATE TABLE nvp (
+nvp_id int(10) unsigned NOT NULL auto_increment,
+name varchar(100) NOT NULL default '',
+value text NOT NULL,
+PRIMARY KEY ( nvp_id )) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS permissions;
+CREATE TABLE permissions (
+p_id int(10) unsigned NOT NULL auto_increment,
+app_id int(10) unsigned NOT NULL default '0',
+user_id int(10) unsigned NOT NULL default '0',
+PRIMARY KEY  ( p_id )) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS sessions;
+CREATE TABLE sessions (
+session_id varchar(100) NOT NULL default '',
+session_data text NOT NULL,
+expires int(11) unsigned NOT NULL default '0',
+PRIMARY KEY ( session_id )) 
+ENGINE=InnoDB 
+DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+user_id int(10) unsigned NOT NULL auto_increment,
+appdepot_username varchar(100) NOT NULL default '',
+ldap_username varchar(100) default NULL,
+ldap_server int(10) unsigned default NULL,
+enabled int(10) unsigned NOT NULL default '1',
+lastlogin datetime default NULL,
+user_level int(10) unsigned NOT NULL default '5',
+PRIMARY KEY ( user_id )) 
+ENGINE=InnoDB DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS logins;
+CREATE TABLE logins (
+login_id int(10) unsigned NOT NULL auto_increment,
+user_id int(10) unsigned NOT NULL default '0',
+timestamp datetime NOT NULL default '0000-00-00 00:00:00',
+result tinyint(3) unsigned NOT NULL default '0',
+PRIMARY KEY  (login_id))
+ENGINE=InnoDB DEFAULT CHARSET=latin1
+AUTO_INCREMENT=1;

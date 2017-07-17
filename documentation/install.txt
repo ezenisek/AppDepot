@@ -1,0 +1,42 @@
+AppDepot Installation
+
+AppDepot can be downloaded from our website at http://appdepot.org or
+http://sourceforge.net/projects/appdepot. Once downloaded, installing AppDepot
+is a straightforward process. 
+
+Simply unzip or untar the files into a web directory on
+your server and browse to the root application folder to begin the installation
+process. 
+
+Prior to installation, you’ll need to have the following requirements met:
+
+• The PHP user on your server must have read/write permissions to the
+following files:
+	o The entire install directory and all files inside
+	o The includes/settings.php file
+	o Whatever location you’ll specify as the log directory
+• You must create a MySQL database and a user for App Depot to use
+	o Be sure to give the user permissions to the database you create
+	o App Depot will create all tables and installation data for you
+• You’ll need at least one valid LDAP Authentication Source
+	o This can be Active Directory, Open LDAP, or any other authentication
+	source that uses the LDAP protocol
+	o All App Depot users MUST have an account in a valid LDAP source in
+	order to be added to App Depot
+	o You’ll need to specify your first LDAP source during installation
+• The PHP directive ‘register_globals’ MUST be turned OFF
+
+The AppDepot installation program will verify that all these conditions are met
+prior to proceeding with installation. If any of the above conditions are not met, you
+will not be allowed to continue.
+
+Follow the instructions on the installation page to continue and complete the
+installation. At the bottom of the installation page is the ‘Verify Information’ button.
+The installation will not complete until all the information you have given can be
+verified as accurate and all the appropriate connections can be made. Once
+verification is complete click ‘Complete Installation’ to finish the process.
+
+Note: Changing any information after a successful verification will require all
+information to be re-verified.
+
+Once installation is complete, log in with the admin user you specified and begin using AppDepot!
